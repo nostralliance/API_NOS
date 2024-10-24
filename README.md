@@ -1,5 +1,7 @@
 # API de Traitement de Fichiers
 
+# Fichier main.py  
+
 ## Description  
 Cette API permet de traiter des fichiers PDF ou image (JPG, JPEG, PNG) en extrayant certaines informations spécifiques grâce à la bibliothèque OCR `easyocr` et à d'autres fonctions définies dans un module externe `mylib_montant`. Elle extrait les éléments suivants :
 
