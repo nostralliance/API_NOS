@@ -24,10 +24,10 @@ Lancer l'api a l'aide de la commande : python main.py
 
 ## Tester avec POSTman  
 
-Sélectionner la requete : POST
+Sélectionner la requete : POST  
 Entrez l'url: http://localhost:8000/process_file  
-Cliquer sur "body" puis "raw" 
-puis entrez votre fichier a analyser sous ce format :  
-{
-    "file_path": "chemin_de_votre_fichier_PDF"
+Cliquer sur "body" puis "raw"  
+puis entrez votre fichier a analyser sous ce format :   
+{  
+    "file_path": "chemin_de_votre_fichier_PDF"  
 }
