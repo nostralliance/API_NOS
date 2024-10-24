@@ -22,13 +22,13 @@ Avant de commencer, assurez-vous que les dépendances suivantes sont installées
 
 ## Lancement API  
 
-Lancer l'api a l'aide de la commande : python main.py  
+Lancer l'api a l'aide de la commande : `python main.py`  
 
 ## Tester avec POSTman  
 
 Sélectionner la requete : POST  
 Entrez l'url: http://localhost:8000/process_file  
-Cliquer sur "body" puis "raw"  
+Cliquer sur `body` puis `raw`  
 puis entrez votre fichier a analyser sous ce format :   
 {  
     "file_path": "chemin_de_votre_fichier_PDF"  
@@ -56,11 +56,11 @@ Avant de démarrer, vous devez installer les dépendances suivantes dans votre e
 1. **Python 3.7** ou supérieur
 2. Les bibliothèques Python nécessaires (Streamlit, EasyOCR, Pillow, etc.)
 
-Installez les dépendances en exécutant la commande suivante : pip install -r requirements.txt  
+Installez les dépendances en exécutant la commande suivante : `pip install -r requirements.txt`  
 
 ## Lancement de l'application Streamlit  
 
-Lancer l'api a l'aide de la commande : streamlit run stream.py  
+Lancer l'api a l'aide de la commande : `streamlit run stream.py`  
 
 ## Tester l'application  
 
