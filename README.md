@@ -33,3 +33,35 @@ puis entrez votre fichier a analyser sous ce format :
 {  
     "file_path": "chemin_de_votre_fichier_PDF"  
 }
+
+
+# Fichier stream.py  
+
+## Description
+Cette application **Streamlit** permet de traiter des fichiers PDF ou image (JPG, JPEG, PNG) en extrayant diverses informations spécifiques via un processus d'OCR (reconnaissance optique de caractères) utilisant **EasyOCR** et les fonctions d'analyse de texte du module externe `mylib_montant`.
+
+L'application permet d'extraire les éléments suivants :
+- Dates
+- Numéros SIREN/SIRET
+- Codes postaux
+- Pourcentages
+- Montants et somme totale des montants
+
+L'interface propose le téléchargement d'un fichier, le traitement OCR, et l'affichage des résultats selon les critères sélectionnés par l'utilisateur.
+
+## Prérequis
+
+Avant de démarrer, vous devez installer les dépendances suivantes dans votre environnement Python :
+
+1. **Python 3.7** ou supérieur
+2. Les bibliothèques Python nécessaires (Streamlit, EasyOCR, Pillow, etc.)
+
+Installez les dépendances en exécutant la commande suivante : pip install -r requirements.txt  
+
+## Lancement de l'application Streamlit  
+
+Lancer l'api a l'aide de la commande : streamlit run stream.py  
+
+## Tester l'application  
+
+Une fois lancer il suffit de se rendre sur l'url fournit par streamlit (localhost:8000), une fois sur l'application choisir un document a analyser, attendre que la barre de chargement soit terminer, puis cocher les éléments que l'on souhaite faire ressortir.
