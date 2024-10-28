@@ -38,7 +38,7 @@ puis entrez votre fichier a analyser sous ce format :
 
 Le résultat sont les informations générales sur le fichier pdf/image choisis.
 
-
+---
 # Fichier mainV2.py  
 
 ## Description  
@@ -77,7 +77,7 @@ puis entrez votre fichier a analyser sous ce format :
 
 Le résultat sont les informations générales sur le fichier pdf/image choisis, les données sont triées page par pages afin de faciliter la prise d'information.
 
-
+---
 # Fichier stream.py  
 
 ## Description
