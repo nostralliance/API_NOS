@@ -7,7 +7,7 @@ import json
 from PIL import Image
 from io import BytesIO  # Pour gérer les fichiers en mémoire
 import tempfile  # Pour créer un fichier temporaire
-
+import time
 
 # Interface Streamlit
 st.title("Détection d'informations dans les documents")
@@ -30,12 +30,27 @@ with col1:
         if st.session_state['ocr_text'] is None:
             file_extension = os.path.splitext(uploaded_file.name)[1].lower()  # Obtenir l'extension du fichier
 
+            # Afficher une barre de chargement
+            progress_bar = st.progress(0)  # Initialise la barre de progression
+            status_text = st.empty()
+
+            # Simuler une progression lors du traitement (ajouter des étapes réalistes ici)
+            for percent_complete in range(0, 100, 10):
+                status_text.text(f"Analyse en cours : {percent_complete}%")
+                progress_bar.progress(percent_complete)
+                # Simuler un délai pour chaque étape (ici, une petite pause)
+                time.sleep(0.5)  # Vous pouvez ajuster le délai selon le besoin
+
             # Traitement du fichier pour afficher l'image si nécessaire
             images, ocr_text = functions.process_file(uploaded_file, file_extension)
             
             # Sauvegarder le texte OCR et les images dans l'état de session
             st.session_state['ocr_text'] = ocr_text
             st.session_state['images'] = images
+
+            # Compléter la barre de progression à 100%
+            progress_bar.progress(100)
+            status_text.text("Analyse terminée")
 
         # Afficher les images (pour PDF, toutes les pages converties en images)
         for img in st.session_state['images']:
@@ -45,7 +60,8 @@ with col1:
 with col2:
     st.write("### Sélectionnez les éléments à afficher")
     display_dates = st.checkbox('Dates')
-    display_siren_siret = st.checkbox('SIREN/SIRET')
+    display_siren = st.checkbox('SIREN')
+    display_siret = st.checkbox('SIRET')
     display_postal_codes = st.checkbox('Codes postaux')
     display_percentages = st.checkbox('Pourcentages')
     display_montants = st.checkbox('Montants')
@@ -63,17 +79,19 @@ if uploaded_file:
     montants = []
     somme_montants = 0
 
-    # Toujours effectuer la détection, même si les cases ne sont pas cochées
+    # Détection et suppression des éléments dans le texte extrait
     dates, final_text = functions.extract_dates(final_text)
-    siren_siret, final_text = functions.extract_siren_siret(final_text)
+    siren, final_text = functions.extract_siren(final_text)
+    siret, final_text = functions.extract_siret(final_text)
     postal_codes, final_text = functions.extract_postal_codes(final_text)
     percentages, final_text = functions.extract_percentages(final_text)
-    montants, somme_montants, final_text = functions.extract_montants(final_text)
+    montants,somme_montants, final_text = functions.extract_montants(final_text)
 
     # Résultats complets (utilisé pour JSON final)
     results = {
         "dates": ["/".join(date) for date in dates],  # Reformater les dates pour être lisibles
-        "siren_siret": [s[0] for s in siren_siret],  # Prendre seulement les numéros Siren/Siret
+        "siren": [s[0] for s in siren],  # Prendre seulement les numéros Siren
+        "siret": [s[0] for s in siret],  # Prendre seulement les numéros Siret
         "postal_codes": postal_codes,
         "percentages": percentages,
         "montants": montants,
@@ -86,9 +104,13 @@ if uploaded_file:
         st.write("#### Dates")
         st.write(results["dates"])
 
-    if display_siren_siret:
-        st.write("#### SIREN/SIRET")
-        st.write(results["siren_siret"])
+    if display_siren:
+        st.write("#### SIREN")
+        st.write(results["siren"])
+
+    if display_siret:
+        st.write("#### SIRET")
+        st.write(results["siret"])
 
     if display_postal_codes:
         st.write("#### Codes postaux")
@@ -102,4 +124,3 @@ if uploaded_file:
         st.write("#### Montants")
         st.write(results["montants"])
         st.write(f"Somme des montants: {results['somme_montants']} €")
-

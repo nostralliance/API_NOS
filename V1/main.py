@@ -10,12 +10,12 @@ app = FastAPI()
 
 # Modèle de requête pour recevoir le chemin du fichier
 class FileRequest(BaseModel):
-    file_path: str
+    docid: str
 
 # Route pour traiter le fichier
 @app.post("/process_file")
 async def process_file(request: FileRequest):
-    file_path = request.file_path
+    file_path = request.docid
 
     # Vérification que le fichier existe
     if not os.path.exists(file_path):
@@ -48,7 +48,8 @@ async def process_file(request: FileRequest):
 
     # Détection et suppression des éléments dans le texte extrait
     dates, final_text = functions.extract_dates(final_text)
-    siren_siret, final_text = functions.extract_siren_siret(final_text)
+    siren, final_text = functions.extract_siren(final_text)
+    siret, final_text = functions.extract_siret(final_text)
     postal_codes, final_text = functions.extract_postal_codes(final_text)
     percentages, final_text = functions.extract_percentages(final_text)
     montants,somme_montants, final_text = functions.extract_montants(final_text)
@@ -56,11 +57,12 @@ async def process_file(request: FileRequest):
     # Retourner les résultats dans un format JSON
     return {
         "dates": ["/".join(date) for date in dates],  # Reformater les dates pour être lisibles
-        "siren_siret": [s[0] for s in siren_siret],  # Prendre seulement les numéros Siren/Siret
+        "siren": siren,  # Prendre seulement les numéros Siren
+        "siret": siret,  # Prendre seulement les numéros Siret
         "postal_codes": postal_codes,
         "percentages": percentages,
-        "montants": montants,
-        "somme_montants": somme_montants
+        "montants": montants + [f'somme des montants :{somme_montants}']
+        
     }
 
 # Démarrage automatique de l'application avec Uvicorn

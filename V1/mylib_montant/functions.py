@@ -98,13 +98,24 @@ def extract_dates(text):
         text = text.replace(formatted_date, "A")  # Supprimer chaque date trouvée
     return dates, text
 
-# Fonction pour extraire les numéros SIREN/SIRET
-def extract_siren_siret(text):
-    siren_siret_regex = r'\b(\d{3}\s?\d{3}\s?\d{3}\s?(\d{5})?)\b'
-    siren_siret = re.findall(siren_siret_regex, text)
-    for siren in siren_siret:
-        text = text.replace(siren[0], "A")  # Supprimer chaque Siren/Siret trouvé
-    return siren_siret, text
+def extract_siren(text):
+    # Expression régulière pour les numéros SIREN (9 chiffres)
+    siren_regex = r'\b(\d{3}\s?\d{3}\s?\d{3})\b'
+    sirens = re.findall(siren_regex, text)
+    # Supprimer chaque SIREN trouvé du texte
+    # for siren in sirens:
+    #     text = text.replace(siren, "A")  # Remplacer par "A"
+    return sirens, text
+
+def extract_siret(text):
+    # Expression régulière pour les numéros SIRET (14 chiffres : 9 chiffres SIREN + 5 chiffres supplémentaires)
+    siret_regex = r'\b(\d{3}\s?\d{3}\s?\d{3}\s?\d{5})\b'
+    sirets = re.findall(siret_regex, text)
+    # Supprimer chaque SIRET trouvé du texte
+    for siret in sirets:
+        text = text.replace(siret, "A")  # Remplacer par "A"
+    return sirets, text
+
 
 # Fonction pour extraire les codes postaux (français)
 def extract_postal_codes(text):
@@ -119,7 +130,7 @@ def extract_percentages(text):
     # Regex pour les pourcentages entre 1% et 100%
     percentage_regex = r'(100|[1-9]?[0-9]) ?%'
     percentages = re.findall(percentage_regex, text)
-    print(f'poucentage trouvée : {percentages}')
+    # print(f'poucentage trouvée : {percentages}')
     
     for percentage in percentages:
         percentage_with_symbol = f"{percentage}%"  # Reformater pour inclure le symbole %
