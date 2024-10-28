@@ -64,6 +64,7 @@ with col2:
     display_siret = st.checkbox('SIRET')
     display_postal_codes = st.checkbox('Codes postaux')
     display_percentages = st.checkbox('Pourcentages')
+    display_num_tel = st.checkbox('Numéro téléphone')
     display_montants = st.checkbox('Montants')
 
 # Effectuer le traitement pour tous les critères (même si les cases ne sont pas cochées)
@@ -76,6 +77,7 @@ if uploaded_file:
     siren_siret = []
     postal_codes = []
     percentages = []
+    num_tels = []
     montants = []
     somme_montants = 0
 
@@ -85,15 +87,17 @@ if uploaded_file:
     siret, final_text = functions.extract_siret(final_text)
     postal_codes, final_text = functions.extract_postal_codes(final_text)
     percentages, final_text = functions.extract_percentages(final_text)
+    num_tels, final_text = functions.extract_telephone(final_text)
     montants,somme_montants, final_text = functions.extract_montants(final_text)
 
     # Résultats complets (utilisé pour JSON final)
     results = {
         "dates": ["/".join(date) for date in dates],  # Reformater les dates pour être lisibles
-        "siren": [s[0] for s in siren],  # Prendre seulement les numéros Siren
-        "siret": [s[0] for s in siret],  # Prendre seulement les numéros Siret
+        "siren": siren,  # Prendre seulement les numéros Siren
+        "siret": siret,  # Prendre seulement les numéros Siret
         "postal_codes": postal_codes,
         "percentages": percentages,
+        "numero_telephone":num_tels,
         "montants": montants,
         "somme_montants": somme_montants
     }
@@ -119,6 +123,10 @@ if uploaded_file:
     if display_percentages:
         st.write("#### Pourcentages")
         st.write(results["percentages"])
+
+    if display_num_tel:
+        st.write("#### Numéro téléphone")
+        st.write(results["numero_telephone"])
 
     if display_montants:
         st.write("#### Montants")
