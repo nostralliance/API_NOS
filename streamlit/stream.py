@@ -60,6 +60,8 @@ with tab1:
         display_dates = st.checkbox('Dates')
         display_siren = st.checkbox('SIREN')
         display_siret = st.checkbox('SIRET')
+        display_adeli = st.checkbox('Num. Adeli')
+        display_rpps = st.checkbox('Num. RPPS')
         display_postal_codes = st.checkbox('Codes postaux')
         display_percentages = st.checkbox('Pourcentages')
         display_num_tel = st.checkbox('Numéro téléphone')
@@ -78,12 +80,16 @@ with tab1:
         percentages = []
         num_tels = []
         montants = []
+        num_adelis = []
+        num_rpps = []
         somme_montants = 0
 
         # Détection et suppression des éléments dans le texte extrait
         dates, final_text = functions.extract_dates(final_text)
-        siren, final_text = functions.extract_siren(final_text)
         siret, final_text = functions.extract_siret(final_text)
+        siren = functions.extract_siren_from_siret(siret)
+        num_adelis, final_text = functions.extract_adeli(final_text)
+        num_rpps, final_text = functions.extract_rpps(final_text)
         postal_codes, final_text = functions.extract_postal_codes(final_text)
         percentages, final_text = functions.extract_percentages(final_text)
         num_tels, final_text = functions.extract_telephone(final_text)
@@ -94,6 +100,8 @@ with tab1:
             "dates": ["/".join(date) for date in dates],  # Reformater les dates pour être lisibles
             "siren": siren,  # Prendre seulement les numéros Siren
             "siret": siret,  # Prendre seulement les numéros Siret
+            "num_Adeli": num_adelis,
+            "num_RPPS": num_rpps,
             "postal_codes": postal_codes,
             "percentages": percentages,
             "numero_telephone": num_tels,
@@ -114,6 +122,14 @@ with tab1:
         if display_siret:
             st.write("#### SIRET")
             st.write(results["siret"])
+
+        if display_adeli:
+            st.write("#### ADELI")
+            st.write(results["num_Adeli"])
+
+        if display_rpps:
+            st.write("#### RPPS")
+            st.write(results["num_RPPS"])
 
         if display_postal_codes:
             st.write("#### Codes postaux")
@@ -171,7 +187,19 @@ with tab2:
         # Dictionnaire pour stocker les résultats JSON
         results_json = {}
 
-        # Afficher les images (pour PDF, toutes les pages converties en images)
+        # Cases à cocher pour les critères
+        st.write("### Sélectionnez les éléments à afficher par page")
+        display_dates_page = st.checkbox('Dates', value=True)
+        display_siren_page = st.checkbox('SIREN', value=True)
+        display_siret_page = st.checkbox('SIRET', value=True)
+        display_adeli_page = st.checkbox('Num. Adeli', value=True)
+        display_rpps_page = st.checkbox('Num. RPPS', value=True)
+        display_postal_codes_page = st.checkbox('Codes postaux', value=True)
+        display_percentages_page = st.checkbox('Pourcentages', value=True)
+        display_num_tel_page = st.checkbox('Numéro téléphone', value=True)
+        display_montants_page = st.checkbox('Montants', value=True)
+
+        # Afficher les images et extraire les données pour chaque page
         for index, img in enumerate(st.session_state['images_page']):
             st.image(img, caption=f'Page {index + 1} du document', use_column_width=True)
             
@@ -186,12 +214,16 @@ with tab2:
             percentages_page = []
             num_tels_page = []
             montants_page = []
+            num_adelis_page = []
+            num_rpps_page = []
             somme_montants_page = 0
 
-            # Extraction Ades informations pour la page actuelle
+            # Extraction des informations pour la page actuelle
             dates_page, final_text_page = functions.extract_dates(final_text_page)
-            siren_page, final_text_page = functions.extract_siren(final_text_page)
             siret_page, final_text_page = functions.extract_siret(final_text_page)
+            siren_page = functions.extract_siren_from_siret(siret_page)
+            num_adelis_page, final_text_page = functions.extract_adeli(final_text_page)
+            num_rpps_page, final_text_page = functions.extract_rpps(final_text_page)
             postal_codes_page, final_text_page = functions.extract_postal_codes(final_text_page)
             percentages_page, final_text_page = functions.extract_percentages(final_text_page)
             num_tels_page, final_text_page = functions.extract_telephone(final_text_page)
@@ -202,6 +234,8 @@ with tab2:
                 "dates": ["/".join(date) for date in dates_page],  # Reformater les dates pour être lisibles
                 "siren": siren_page,
                 "siret": siret_page,
+                "num_adeli": num_adelis_page,
+                "num_rpps": num_rpps_page,
                 "postal_codes": postal_codes_page,
                 "percentages": percentages_page,
                 "numero_telephone": num_tels_page,
@@ -209,9 +243,41 @@ with tab2:
                 "somme_montants": somme_montants_page
             }
 
-            # Ajouter les résultats de cette page au JSON global
-            results_json[f'Page {index + 1}'] = results_page
+            # Afficher uniquement les résultats correspondant aux cases cochées
+            st.write("### Résultats pour la Page", index + 1)
+            if display_dates_page:
+                st.write("#### Dates")
+                st.write(results_page["dates"])
 
-        # Afficher le JSON complet
-        st.write("### Résultats au format JSON")
-        st.json(results_json)
+            if display_siren_page:
+                st.write("#### SIREN")
+                st.write(results_page["siren"])
+
+            if display_siret_page:
+                st.write("#### SIRET")
+                st.write(results_page["siret"])
+
+            if display_adeli_page:
+                st.write("#### ADELI")
+                st.write(results_page["num_adeli"])
+
+            if display_rpps_page:
+                st.write("#### RPPS")
+                st.write(results_page["num_rpps"])
+
+            if display_postal_codes_page:
+                st.write("#### Codes postaux")
+                st.write(results_page["postal_codes"])
+
+            if display_percentages_page:
+                st.write("#### Pourcentages")
+                st.write(results_page["percentages"])
+
+            if display_num_tel_page:
+                st.write("#### Numéro téléphone")
+                st.write(results_page["numero_telephone"])
+
+            if display_montants_page:
+                st.write("#### Montants")
+                st.write(results_page["montants"])
+                st.write(f"Somme des montants: {results_page['somme_montants']} €")

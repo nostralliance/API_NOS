@@ -1,4 +1,3 @@
-from fastapi import FastAPI, HTTPException
 import easyocr
 import re
 import fitz
@@ -128,15 +127,6 @@ def extract_dates(text):
         text = text.replace(formatted_date, "A")  # Supprimer chaque date trouvée
     return dates, text
 
-def extract_siren(text):
-    # Expression régulière pour les numéros SIREN (9 chiffres)
-    siren_regex = r'\b(\d{3}\s?\d{3}\s?\d{3})\b'
-    sirens = re.findall(siren_regex, text)
-    # Supprimer chaque SIREN trouvé du texte
-    # for siren in sirens:
-    #     text = text.replace(siren, "A")  # Remplacer par "A"
-    return sirens, text
-
 def extract_siret(text):
     # Expression régulière pour les numéros SIRET (14 chiffres : 9 chiffres SIREN + 5 chiffres supplémentaires)
     siret_regex = r'\b(\d{3}\s?\d{3}\s?\d{3}\s?\d{5})\b'
@@ -146,6 +136,41 @@ def extract_siret(text):
         text = text.replace(siret, "A")  # Remplacer par "A"
     return sirets, text
 
+
+def extract_siren_from_siret(sirets):
+    # Extraire les SIREN à partir des SIRET trouvés
+    sirens = [siret.replace(" ", "")[:9] for siret in sirets]  # Isoler les 9 premiers chiffres de chaque SIRET
+    print("les sirens trouver sont :",sirens)
+    return sirens
+
+
+def extract_adeli(text):
+    # Expression régulière pour les numéros ADELI (9 chiffres)
+    adeli_regex = r'\b(\d{3}\s?\d{3}\s?\d{3})\b'
+    adelis = re.findall(adeli_regex, text)
+
+    # Normaliser les résultats en supprimant les espaces
+    normalized_adelis = {adeli.replace(" ", "") for adeli in adelis}
+
+    # Supprimer chaque numéro ADELI trouvé du texte
+    for adeli in adelis:
+        text = text.replace(adeli, "A")  # Remplacer par "A"
+
+    return list(normalized_adelis), text  # Retourner les numéros normalisés
+
+def extract_rpps(text):
+    # Expression régulière pour les numéros RPPS (11 chiffres)
+    rpps_regex = r'\b(\d{3}\s?\d{3}\s?\d{3}\s?\d{2})\b'
+    rpps_numbers = re.findall(rpps_regex, text)  # Trouver tous les numéros RPPS
+
+    # Normaliser les résultats en supprimant les espaces
+    normalized_rpps = {rpps.replace(" ", "") for rpps in rpps_numbers}
+
+    # Supprimer chaque numéro RPPS trouvé du texte
+    for rpps in rpps_numbers:
+        text = text.replace(rpps, "A")  # Remplacer par "A"
+
+    return list(normalized_rpps), text 
 
 # Fonction pour extraire les codes postaux (français)
 def extract_postal_codes(text):
