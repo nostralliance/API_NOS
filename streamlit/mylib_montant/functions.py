@@ -10,11 +10,42 @@ from PIL import Image
 from io import BytesIO  # Pour gérer les fichiers en mémoire
 import tempfile  # Pour créer un fichier temporaire
 
-
-
 # Fonction pour traiter le fichier (PDF ou image)
 def process_file(file, file_extension):
-    final_text = ""
+    reader = easyocr.Reader(['fr'])  # Initialiser le lecteur OCR
+
+    if file_extension == '.pdf':
+        # Lire le fichier PDF directement depuis le tampon (BytesIO)
+        pdf_bytes = BytesIO(file.read())
+
+        # Créer un fichier temporaire pour le PDF
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp_file:
+            tmp_file.write(pdf_bytes.getvalue())
+            tmp_file.flush()
+
+            # Utiliser le fichier temporaire pour la conversion PDF -> images
+            images = functions.pdf2img(tmp_file.name)  # Utiliser le chemin du fichier temporaire
+
+        # Initialiser une chaîne pour le texte brut
+        ocr_text = ""
+
+        # Appliquer l'OCR sur chaque image et concaténer le texte
+        for image in images:
+            text = " ".join(reader.readtext(image, detail=0))  # Extraire le texte de chaque image
+            ocr_text += text + " "  # Ajouter le texte à la chaîne principale
+
+        return images, ocr_text.strip()  # Retourner les images et le texte brut
+
+    elif file_extension in ['.jpg', '.jpeg', '.png']:
+        # Appliquer l'OCR sur une image
+        ocr_text = " ".join(reader.readtext(file, detail=0))  # Extraire le texte
+        image = Image.open(file)  # Charger l'image pour l'afficher
+        return [image], ocr_text.strip()  # Retourner l'image et le texte brut
+
+    return [], ""
+
+# Fonction pour traiter le fichier (PDF ou image)
+def process_file_page_per_page(file, file_extension):
     reader = easyocr.Reader(['fr'])
 
     if file_extension == '.pdf':
@@ -34,18 +65,17 @@ def process_file(file, file_extension):
         # Appliquer l'OCR sur chaque image
         for image in images:
             text = " ".join(reader.readtext(image, detail=0))  # Extraire le texte de chaque image
-            ocr_results.append(text)
-        final_text = " ".join(ocr_results)  # Concatenation du texte extrait
+            ocr_results.append(text)  # Conserver le texte pour chaque page
 
-        return images, final_text  # On retourne également les images pour les afficher plus tard
+        return images, ocr_results  # Retourne aussi les images
 
     elif file_extension in ['.jpg', '.jpeg', '.png']:
         # Appliquer l'OCR sur une image
         final_text = " ".join(reader.readtext(file, detail=0))  # Extraire le texte
         image = Image.open(file)  # Charger l'image pour l'afficher
-        return [image], final_text  # Retourne une liste contenant l'image pour être cohérent
+        return [image], [final_text]  # Retourne une liste contenant l'image et le texte
 
-    return [], final_text
+    return [], []
 
 
 def pdf2img(pdfFile: str, pages: Tuple = None):
