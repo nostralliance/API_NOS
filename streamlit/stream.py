@@ -146,7 +146,7 @@ with tab1:
         if display_montants:
             st.write("#### Montants")
             st.write(results["montants"])
-            st.write(f"Somme des montants: {results['somme_montants']} €")
+            # st.write(f"Somme des montants: {results['somme_montants']} €")
 
 # Onglet 2 : Traitement par Page
 with tab2:
@@ -280,4 +280,4 @@ with tab2:
             if display_montants_page:
                 st.write("#### Montants")
                 st.write(results_page["montants"])
-                st.write(f"Somme des montants: {results_page['somme_montants']} €")
+                # st.write(f"Somme des montants: {results_page['somme_montants']} €")
