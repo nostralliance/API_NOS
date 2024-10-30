@@ -122,108 +122,82 @@ def pdf2img(pdfFile: str, pages: Tuple = None):
 def extract_dates(text):
     date_regex = r'\b(0[1-9]|[12][0-9]|3[01])[\/\-.](0[1-9]|1[0-2])[\/\-.](\d{4})\b'
     dates = re.findall(date_regex, text)
-    for date in dates:
+    # Convertir en un ensemble pour supprimer les doublons, puis en liste
+    unique_dates = list(set(dates))
+    for date in unique_dates:
         formatted_date = "/".join(date)
         text = text.replace(formatted_date, "A")  # Supprimer chaque date trouvée
-    return dates, text
+    return unique_dates, text
 
 def extract_siret(text):
-    # Expression régulière pour les numéros SIRET (14 chiffres : 9 chiffres SIREN + 5 chiffres supplémentaires)
     siret_regex = r'\b(\d{3}\s?\d{3}\s?\d{3}\s?\d{5})\b'
     sirets = re.findall(siret_regex, text)
-    # Supprimer chaque SIRET trouvé du texte
-    for siret in sirets:
+    unique_sirets = list(set(sirets))  # Supprimer les doublons
+    for siret in unique_sirets:
         text = text.replace(siret, "A")  # Remplacer par "A"
-    return sirets, text
-
+    return unique_sirets, text
 
 def extract_siren_from_siret(sirets):
-    # Extraire les SIREN à partir des SIRET trouvés
-    sirens = [siret.replace(" ", "")[:9] for siret in sirets]  # Isoler les 9 premiers chiffres de chaque SIRET
-    print("les sirens trouver sont :",sirens)
-    return sirens
-
+    # Extraire les SIREN uniques
+    unique_sirens = list(set(siret.replace(" ", "")[:9] for siret in sirets))
+    print("Les SIREN trouvés sont :", unique_sirens)
+    return unique_sirens
 
 def extract_adeli(text):
-    # Expression régulière pour les numéros ADELI (9 chiffres)
     adeli_regex = r'\b(\d{3}\s?\d{3}\s?\d{3})\b'
     adelis = re.findall(adeli_regex, text)
-
-    # Normaliser les résultats en supprimant les espaces
-    normalized_adelis = {adeli.replace(" ", "") for adeli in adelis}
-
-    # Supprimer chaque numéro ADELI trouvé du texte
-    for adeli in adelis:
-        text = text.replace(adeli, "A")  # Remplacer par "A"
-
-    return list(normalized_adelis), text  # Retourner les numéros normalisés
+    # Suppression des doublons et normalisation des espaces
+    unique_adelis = list(set(adeli.replace(" ", "") for adeli in adelis))
+    for adeli in unique_adelis:
+        text = text.replace(adeli, "A")
+    return unique_adelis, text
 
 def extract_rpps(text):
-    # Expression régulière pour les numéros RPPS (11 chiffres)
     rpps_regex = r'\b(\d{3}\s?\d{3}\s?\d{3}\s?\d{2})\b'
-    rpps_numbers = re.findall(rpps_regex, text)  # Trouver tous les numéros RPPS
+    rpps_numbers = re.findall(rpps_regex, text)
+    unique_rpps = list(set(rpps.replace(" ", "") for rpps in rpps_numbers))
+    for rpps in unique_rpps:
+        text = text.replace(rpps, "A")
+    return unique_rpps, text
 
-    # Normaliser les résultats en supprimant les espaces
-    normalized_rpps = {rpps.replace(" ", "") for rpps in rpps_numbers}
-
-    # Supprimer chaque numéro RPPS trouvé du texte
-    for rpps in rpps_numbers:
-        text = text.replace(rpps, "A")  # Remplacer par "A"
-
-    return list(normalized_rpps), text 
-
-# Fonction pour extraire les codes postaux (français)
 def extract_postal_codes(text):
     postal_code_regex = r'\b\d{5}\b'
     postal_codes = re.findall(postal_code_regex, text)
-    for postal_code in postal_codes:
-        text = text.replace(postal_code, "A")  # Supprimer chaque code postal trouvé
-    return postal_codes, text
+    unique_postal_codes = list(set(postal_codes))
+    for postal_code in unique_postal_codes:
+        text = text.replace(postal_code, "A")
+    return unique_postal_codes, text
 
-# Fonction pour extraire les pourcentages allant de 1% à 100% avec le symbole %
 def extract_percentages(text):
-    # Regex pour les pourcentages entre 1% et 100%
     percentage_regex = r'(100|[1-9]?[0-9]) ?%'
     percentages = re.findall(percentage_regex, text)
-    # print(f'poucentage trouvée : {percentages}')
-    
-    for percentage in percentages:
-        percentage_with_symbol = f"{percentage}%"  # Reformater pour inclure le symbole %
-        text = text.replace(percentage_with_symbol, "A")  # Remplacer chaque pourcentage par "A%"
-    
-    # Retourner les pourcentages trouvés et le texte modifié
-    return [f"{percentage}%" for percentage in percentages], text
+    unique_percentages = list(set(f"{percentage}%" for percentage in percentages))
+    for percentage in unique_percentages:
+        text = text.replace(percentage, "A")
+    return unique_percentages, text
 
-# Fonction pour extraire les montants
 def extract_montants(text):
-    montant_regex = r'\d{1,3}(?:[ ]\d{3})*[.,]\d{2} ?[€]?'  # Regex pour détecter les montants
+    montant_regex = r'\d{1,3}(?:[ ]\d{3})*[.,]\d{2} ?[€]?'
     montants = re.findall(montant_regex, text)
-    
-    # Conversion des montants en flottants et suppression des espaces et symboles inutiles
     montants_numeriques = []
+
     for montant in montants:
-        montant_clean = montant.replace(" ", "").replace(",", ".").replace("€", "")  # Nettoyage
+        montant_clean = montant.replace(" ", "").replace(",", ".").replace("€", "")
         try:
-            montants_numeriques.append(float(montant_clean))  # Conversion en nombre
+            montants_numeriques.append(float(montant_clean))
         except ValueError:
-            continue  # Si un montant ne peut pas être converti, on l'ignore
-    
-    # Calcul de la somme des montants
+            continue
+
     somme_montants = sum(montants_numeriques)
-    
-    # Suppression des doublons
-    montants_uniques = list(set(montants))  # On garde seulement les montants uniques
-    
-    # Remplacement des montants dans le texte
-    for montant in montants_uniques:
-        text = text.replace(montant, "A")  # Remplacer chaque montant unique trouvé par "A"
-    
-    # Retourner les montants uniques, la somme, et le texte modifié
-    return montants_uniques, somme_montants, text
+    unique_montants = list(set(montants))
+    for montant in unique_montants:
+        text = text.replace(montant, "A")
+    return unique_montants, somme_montants, text
 
 def extract_telephone(text):
     num_tel_regex = r'\b0[1-9](?:\.\d{2}){4}\b'
     num_tels = re.findall(num_tel_regex, text)
-    for num_tel in num_tels:
-        text = text.replace(num_tel, "A")  # Supprimer chaque code postal trouvé
-    return num_tels, text
+    unique_num_tels = list(set(num_tels))
+    for num_tel in unique_num_tels:
+        text = text.replace(num_tel, "A")
+    return unique_num_tels, text
